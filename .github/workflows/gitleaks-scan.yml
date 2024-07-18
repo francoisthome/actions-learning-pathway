@@ -4,10 +4,11 @@ on: [pull_request, push, workflow_dispatch]
 jobs:
   get-org-repos:
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: austenstone/get-org-repos@main
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: get-org-repos
     outputs:
       repos: ${{ steps.get-org-repos.outputs.repos }}
@@ -16,6 +17,7 @@ jobs:
     needs:
       - get-org-repos
     runs-on: ubuntu-latest
+    environment: production
     strategy:
       matrix:
         repo: ${{ fromJson(needs.get-org-repos.outputs.repos) }}
