@@ -13,6 +13,7 @@ jobs:
     outputs:
       repos: ${{ steps.get-org-repos.outputs.repos }}
 
+
   sync-and-scan:
     needs:
       - get-org-repos
