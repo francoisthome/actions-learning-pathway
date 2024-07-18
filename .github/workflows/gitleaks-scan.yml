@@ -1,13 +1,30 @@
-name: gitleaks
+name: get all repo and run gitleaks
 on: [pull_request, push, workflow_dispatch]
+
 jobs:
-  scan:
-    name: gitleaks
+  get-org-repos:
     runs-on: ubuntu-latest
+    steps:
+      - uses: austenstone/get-org-repos@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        id: get-org-repos
+    outputs:
+      repos: ${{ steps.get-org-repos.outputs.repos }}
+
+  sync-and-scan:
+    needs:
+      - get-org-repos
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        repo: ${{ fromJson(needs.get-org-repos.outputs.repos) }}
+      fail-fast: false
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          repository: ${{ github.event.organization.login }}/${{ matrix.repo }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
